@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.roomRouter = void 0;
+const express_1 = require("express");
+const room_controller_1 = require("../controllers/room.controller");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+exports.roomRouter = (0, express_1.Router)();
+exports.roomRouter.use(auth_middleware_1.authMiddleware);
+exports.roomRouter.post('/', room_controller_1.createRoom);
+exports.roomRouter.get('/', room_controller_1.getRoomsByUser);
+exports.roomRouter.get('/others', room_controller_1.getOtherUsersRooms);

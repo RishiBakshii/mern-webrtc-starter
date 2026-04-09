@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SOCKET_EVENTS = void 0;
+var SOCKET_EVENTS;
+(function (SOCKET_EVENTS) {
+    SOCKET_EVENTS["PING"] = "ping";
+    SOCKET_EVENTS["PONG"] = "pong";
+    SOCKET_EVENTS["JOIN_ROOM"] = "join-room";
+    SOCKET_EVENTS["ROOM_JOINED_CONFIRMATION"] = "room_joined_confirmation";
+    SOCKET_EVENTS["OTHER_PERSON_JOINED"] = "other_person_joined";
+    SOCKET_EVENTS["WEBRTC_OFFER"] = "webrtc_offer";
+    SOCKET_EVENTS["WEBRTC_ANSWER"] = "webrtc_answer";
+    SOCKET_EVENTS["WEBRTC_ICE_CANDIDATE"] = "webrtc_ice_candidate";
+    SOCKET_EVENTS["ROOM_ERROR"] = "room-error";
+})(SOCKET_EVENTS || (exports.SOCKET_EVENTS = SOCKET_EVENTS = {}));
