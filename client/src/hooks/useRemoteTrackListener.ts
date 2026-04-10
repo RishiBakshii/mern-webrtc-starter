@@ -1,40 +1,29 @@
-import { useCallback, useEffect } from 'react'
-import type React from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { peer } from '../lib/webrtc/peer'
 
-type UseRemoteTrackListenerParams = {
-  setRemoteStream: React.Dispatch<React.SetStateAction<MediaStream | null>>
-  setRemoteAudioStream: React.Dispatch<React.SetStateAction<MediaStream | null>>
-  setRemoteVideoStream: React.Dispatch<React.SetStateAction<MediaStream | null>>
-}
+export const useRemoteTrackListener = () => {
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null)
+  const [remoteAudioStream, setRemoteAudioStream] = useState<MediaStream | null>(null)
+  const [remoteVideoStream, setRemoteVideoStream] = useState<MediaStream | null>(null)
 
-export const useRemoteTrackListener = ({
-  setRemoteStream,
-  setRemoteAudioStream,
-  setRemoteVideoStream,
-}: UseRemoteTrackListenerParams) => {
-  
-  const handleRemoteStream = useCallback(
-    (event: RTCTrackEvent) => {
-      const incomingRemoteStream = event.streams[0]
-      if (!incomingRemoteStream) return
+  const handleRemoteStream = useCallback((event: RTCTrackEvent) => {
+    const incomingRemoteStream = event.streams[0]
+    if (!incomingRemoteStream) return
 
-      setRemoteStream(incomingRemoteStream)
+    setRemoteStream(incomingRemoteStream)
 
-      const audioTrack = incomingRemoteStream.getAudioTracks()[0]
-      const videoTrack = incomingRemoteStream.getVideoTracks()[0]
+    const audioTrack = incomingRemoteStream.getAudioTracks()[0]
+    const videoTrack = incomingRemoteStream.getVideoTracks()[0]
 
-      console.log('received audio track', audioTrack)
-      console.log('received video track', videoTrack)
+    console.log('received audio track', audioTrack)
+    console.log('received video track', videoTrack)
 
-      const receivedAudioStream = audioTrack ? new MediaStream([audioTrack]) : null
-      const receivedVideoStream = videoTrack ? new MediaStream([videoTrack]) : null
+    const receivedAudioStream = audioTrack ? new MediaStream([audioTrack]) : null
+    const receivedVideoStream = videoTrack ? new MediaStream([videoTrack]) : null
 
-      setRemoteAudioStream(receivedAudioStream)
-      setRemoteVideoStream(receivedVideoStream)
-    },
-    [setRemoteStream, setRemoteAudioStream, setRemoteVideoStream],
-  )
+    setRemoteAudioStream(receivedAudioStream)
+    setRemoteVideoStream(receivedVideoStream)
+  }, [])
 
   useEffect(() => {
     peer.peer?.addEventListener('track', handleRemoteStream)
@@ -42,4 +31,6 @@ export const useRemoteTrackListener = ({
       peer.peer?.removeEventListener('track', handleRemoteStream)
     }
   }, [handleRemoteStream])
+
+  return { remoteStream, remoteAudioStream, remoteVideoStream }
 }

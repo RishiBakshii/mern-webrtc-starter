@@ -1,5 +1,6 @@
 import { Server } from 'socket.io'
 import { SOCKET_EVENTS } from './events'
+import { registerMessageSocketHandlers } from './messages/message.socket'
 import { registerRoomSocketHandlers } from './room/room.socket'
 import { registerWebRtcSocketHandlers } from './webrtc/webrtc.socket'
 
@@ -15,6 +16,7 @@ export const setupSocketHandlers = (io: Server) => {
 
     registerRoomSocketHandlers(socket)
     registerWebRtcSocketHandlers(socket)
+    registerMessageSocketHandlers(socket, io)
 
     // disconnect
     socket.on('disconnect', () => {

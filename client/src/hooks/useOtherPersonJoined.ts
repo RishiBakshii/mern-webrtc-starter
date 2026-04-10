@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import type { Socket } from 'socket.io-client'
 import toast from 'react-hot-toast'
 import { peer } from '../lib/webrtc/peer'
+import { ensureLocalMediaStream } from '../lib/webrtc/localMedia'
 import { SOCKET_EVENTS } from '../socket/events'
 
 type OtherPersonJoinedPayload = {
@@ -19,6 +20,9 @@ export const useOtherPersonJoined = (socket: Socket | null, setRemoteSocketId: (
       setRemoteSocketId(payload.joinedSocketId)
       setRemoteUser(payload.user)
       void (async () => {
+        const localStream = await ensureLocalMediaStream()
+        await peer.attachLocalStream(localStream)
+
         const offer = await peer.getOffer()
         if (!offer) {
           toast.error('Failed to create WebRTC offer')

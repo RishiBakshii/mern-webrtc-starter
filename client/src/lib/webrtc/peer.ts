@@ -53,6 +53,22 @@ class PeerService {
         }
     }
 
+    async attachLocalStream(stream: MediaStream) {
+        this.ensurePeerConnection();
+        if (!this.peer) return;
+
+        for (const track of stream.getTracks()) {
+            const sender = this.peer.getSenders().find((s) => s.track?.kind === track.kind);
+            if (!sender) {
+                this.peer.addTrack(track, stream);
+                continue;
+            }
+
+            if (sender.track?.id === track.id) continue;
+            await sender.replaceTrack(track);
+        }
+    }
+
     /**
      * Accepts a remote offer and generates the local answer for negotiation.
      *

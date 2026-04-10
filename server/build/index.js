@@ -19,7 +19,7 @@ const socket_auth_middleware_1 = require("./middlewares/socket-auth.middleware")
 const app = (0, express_1.default)();
 const PORT = 5000;
 const server = http_1.default.createServer(app);
-const io = new socket_io_1.Server(server, { cors: { origin: 'http://localhost:5173', credentials: true } });
+const io = new socket_io_1.Server(server, { cors: { origin: process.env.NODE_ENV === 'production' ? 'https://webrtc-project-1-uw8x.onrender.com' : 'http://localhost:5173', credentials: true } });
 // global
 app.set('io', io);
 app.use((0, cors_1.default)({ credentials: true, origin: "http://localhost:5173" }));

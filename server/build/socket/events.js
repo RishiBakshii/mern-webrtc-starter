@@ -11,5 +11,7 @@ var SOCKET_EVENTS;
     SOCKET_EVENTS["WEBRTC_OFFER"] = "webrtc_offer";
     SOCKET_EVENTS["WEBRTC_ANSWER"] = "webrtc_answer";
     SOCKET_EVENTS["WEBRTC_ICE_CANDIDATE"] = "webrtc_ice_candidate";
+    SOCKET_EVENTS["SEND_MESSAGE"] = "send_message";
+    SOCKET_EVENTS["RECEIVE_MESSAGE"] = "receive_message";
     SOCKET_EVENTS["ROOM_ERROR"] = "room-error";
 })(SOCKET_EVENTS || (exports.SOCKET_EVENTS = SOCKET_EVENTS = {}));

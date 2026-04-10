@@ -7,5 +7,7 @@ export enum SOCKET_EVENTS {
   WEBRTC_OFFER = 'webrtc_offer',
   WEBRTC_ANSWER = 'webrtc_answer',
   WEBRTC_ICE_CANDIDATE = 'webrtc_ice_candidate',
+  SEND_MESSAGE = 'send_message',
+  RECEIVE_MESSAGE = 'receive_message',
   ROOM_ERROR = 'room-error',
 }
