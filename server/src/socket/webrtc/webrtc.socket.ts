@@ -80,6 +80,35 @@ export const registerWebRtcSocketHandlers = (socket: Socket) => {
     socket.to(toSocketId).emit(SOCKET_EVENTS.WEBRTC_OFFER, payload)
   })
 
+  socket.on(
+    SOCKET_EVENTS.WEBRTC_NEGOTIATION_NEEDED,
+    ({ roomId, toSocketId, offer }: WebRtcOfferPayload = {}) => {
+      if (!roomId || !toSocketId || !offer) {
+        socket.emit(SOCKET_EVENTS.ROOM_ERROR, {
+          message: 'roomId, toSocketId and offer are required',
+        })
+        return
+      }
+
+      const payload: OutgoingWebRtcOfferPayload = {
+        roomId,
+        fromSocketId: socket.id,
+        fromUser: {
+          userId: socket.user.userId,
+          username: socket.user.username,
+          email: socket.user.email,
+        },
+        offer,
+      }
+
+      console.log(
+        `${socket.user.username} sent WEBRTC_NEGOTIATION_NEEDED to socket ${toSocketId} for room ${roomId}`,
+      )
+
+      socket.to(toSocketId).emit(SOCKET_EVENTS.WEBRTC_NEGOTIATION_NEEDED, payload)
+    },
+  )
+
   socket.on(SOCKET_EVENTS.WEBRTC_ANSWER, ({ roomId, toSocketId, answer }: WebRtcAnswerPayload = {}) => {
     if (!roomId || !toSocketId || !answer) {
       socket.emit(SOCKET_EVENTS.ROOM_ERROR, {
@@ -105,6 +134,35 @@ export const registerWebRtcSocketHandlers = (socket: Socket) => {
 
     socket.to(toSocketId).emit(SOCKET_EVENTS.WEBRTC_ANSWER, payload)
   })
+
+  socket.on(
+    SOCKET_EVENTS.WEBRTC_NEGOTIATION_ANSWER,
+    ({ roomId, toSocketId, answer }: WebRtcAnswerPayload = {}) => {
+      if (!roomId || !toSocketId || !answer) {
+        socket.emit(SOCKET_EVENTS.ROOM_ERROR, {
+          message: 'roomId, toSocketId and answer are required',
+        })
+        return
+      }
+
+      const payload: OutgoingWebRtcAnswerPayload = {
+        roomId,
+        fromSocketId: socket.id,
+        fromUser: {
+          userId: socket.user.userId,
+          username: socket.user.username,
+          email: socket.user.email,
+        },
+        answer,
+      }
+
+      console.log(
+        `${socket.user.username} sent WEBRTC_NEGOTIATION_ANSWER to socket ${toSocketId} for room ${roomId}`,
+      )
+
+      socket.to(toSocketId).emit(SOCKET_EVENTS.WEBRTC_NEGOTIATION_ANSWER, payload)
+    },
+  )
 
   socket.on(
     SOCKET_EVENTS.WEBRTC_ICE_CANDIDATE,

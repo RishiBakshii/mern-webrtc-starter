@@ -6,6 +6,9 @@ import { useSocket } from '../context/socket.context'
 import { useDraggableOverlay } from '../hooks/useDraggableOverlay'
 import { useIceCandidateListener } from '../hooks/useIceCandidateListener'
 import { useJoinRoom } from '../hooks/useJoinRoom'
+import { useNegotiationNeeded } from '../hooks/useNegotiationNeeded'
+import { useNegotiationNeededAnswer } from '../hooks/useNegotiationNeededAnswer'
+import { useNegotiationRemoteAnswer } from '../hooks/useNegotiationRemoteAnswer'
 import { useLocalMediaStream } from '../hooks/useLocalMediaStream'
 import { useOtherPersonJoined } from '../hooks/useOtherPersonJoined'
 import { useRemoteTrackListener } from '../hooks/useRemoteTrackListener'
@@ -48,6 +51,18 @@ export const RoomPage = () => {
 
   // receives the answer and sets the remote description, "no emits"
   useWebRtcAnswer(socket)
+  
+  // listens for the socket event of NEGOTIATION_NEEDED, and sends the answer to the remote person
+  // emits WEBRTC_NEGOTIATION_ANSWER event to the remote person
+  useNegotiationNeededAnswer(socket)
+
+  // listens for the socket event of WEBRTC_NEGOTIATION_ANSWER, and sets the remote description
+  // "no emits"
+  useNegotiationRemoteAnswer(socket)
+
+  // listens for local peer, negotiation needed event and sends the offer again to remote person
+  // emits NEGOTIATION_NEEDED event
+  useNegotiationNeeded({socket,roomId,remoteSocketId,enabled: initiateConnection})
 
   // receives the remote ICE candidates and adds it to the peer connection
   useWebRtcIceCandidate(socket)

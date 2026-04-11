@@ -9,6 +9,8 @@ var SOCKET_EVENTS;
     SOCKET_EVENTS["ROOM_JOINED_CONFIRMATION"] = "room_joined_confirmation";
     SOCKET_EVENTS["OTHER_PERSON_JOINED"] = "other_person_joined";
     SOCKET_EVENTS["WEBRTC_OFFER"] = "webrtc_offer";
+    SOCKET_EVENTS["WEBRTC_NEGOTIATION_NEEDED"] = "webrtc_negotiation_needed";
+    SOCKET_EVENTS["WEBRTC_NEGOTIATION_ANSWER"] = "webrtc_negotiation_answer";
     SOCKET_EVENTS["WEBRTC_ANSWER"] = "webrtc_answer";
     SOCKET_EVENTS["WEBRTC_ICE_CANDIDATE"] = "webrtc_ice_candidate";
     SOCKET_EVENTS["SEND_MESSAGE"] = "send_message";
