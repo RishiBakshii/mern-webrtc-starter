@@ -28,19 +28,11 @@ export const RoomPage = () => {
 
   const { offset: selfViewOffset, handlePointerDown: handleSelfViewPointerDown } = useDraggableOverlay()
   const {
-    offset: screenShareOffset,
-    handlePointerDown: handleScreenSharePointerDown,
-  } = useDraggableOverlay()
-  const {
     offset: remoteScreenShareOffset,
     handlePointerDown: handleRemoteScreenSharePointerDown,
   } = useDraggableOverlay()
 
-  const {
-    userScreenShareStream,
-    isScreenSharing,
-    toggleScreenShare,
-  } = useScreenShare()
+  const { isScreenSharing, toggleScreenShare } = useScreenShare()
 
   const [remoteSocketId, setRemoteSocketId] = useState<string | null>(null)
   const [remoteUser, setRemoteUser] = useState<{ userId: string; username: string; email: string } | null>(null)
@@ -133,9 +125,6 @@ export const RoomPage = () => {
           handleCameraToggle={handleCameraToggle}
           selfViewOffset={selfViewOffset}
           handleSelfViewPointerDown={handleSelfViewPointerDown}
-          userScreenShareStream={userScreenShareStream}
-          screenShareOffset={screenShareOffset}
-          handleScreenSharePointerDown={handleScreenSharePointerDown}
           isScreenSharing={isScreenSharing}
           onScreenShareClick={toggleScreenShare}
           messages={messages}
