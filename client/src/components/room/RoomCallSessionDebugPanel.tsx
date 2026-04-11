@@ -3,6 +3,7 @@ export type RoomCallSessionDebugPanelProps = {
   isRemoteCameraEnabled: boolean
   remoteAudioStream: MediaStream | null
   remoteVideoStream: MediaStream | null
+  remoteScreenShareStream: MediaStream | null
 }
 
 export function RoomCallSessionDebugPanel({
@@ -10,6 +11,7 @@ export function RoomCallSessionDebugPanel({
   isRemoteCameraEnabled,
   remoteAudioStream,
   remoteVideoStream,
+  remoteScreenShareStream,
 }: RoomCallSessionDebugPanelProps) {
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-2 text-xs">
@@ -25,6 +27,9 @@ export function RoomCallSessionDebugPanel({
       </span>
       <span className="rounded-full border border-slate-700 px-2 py-0.5 text-slate-200">
         remoteVideoStream: {remoteVideoStream ? 'available' : 'none'}
+      </span>
+      <span className="rounded-full border border-slate-700 px-2 py-0.5 text-slate-200">
+        remoteScreen: {remoteScreenShareStream ? 'available' : 'none'}
       </span>
     </div>
   )

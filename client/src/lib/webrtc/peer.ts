@@ -8,6 +8,7 @@ const rtcConfig: RTCConfiguration = {
 
 class PeerService {
   peer: RTCPeerConnection | null = null
+  private screenShareSender: RTCRtpSender | null = null
 
   private bindIceLogging(pc: RTCPeerConnection) {
     pc.oniceconnectionstatechange = () => {
@@ -20,6 +21,31 @@ class PeerService {
       this.peer = new RTCPeerConnection(rtcConfig)
       this.bindIceLogging(this.peer)
     }
+  }
+
+  /** Adds a second outgoing video track (display capture). Triggers renegotiation. */
+  addScreenShareTrack(stream: MediaStream) {
+    this.ensurePeerConnection()
+    if (!this.peer) return
+    const track = stream.getVideoTracks()[0]
+    if (!track) return
+
+    if (this.screenShareSender) {
+      void this.screenShareSender.replaceTrack(track)
+      return
+    }
+
+    this.screenShareSender = this.peer.addTrack(track, stream)
+  }
+
+  removeScreenShareTrack() {
+    if (!this.peer || !this.screenShareSender) return
+    try {
+      this.peer.removeTrack(this.screenShareSender)
+    } catch {
+      /* ignore */
+    }
+    this.screenShareSender = null
   }
 
   async attachLocalStream(stream: MediaStream) {

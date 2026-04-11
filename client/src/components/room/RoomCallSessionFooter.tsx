@@ -5,6 +5,8 @@ export type RoomCallSessionFooterProps = {
   isCameraOn: boolean
   handleMicToggle: () => void
   handleCameraToggle: () => void
+  isScreenSharing: boolean
+  onScreenShareClick: () => void
 }
 
 export function RoomCallSessionFooter({
@@ -12,6 +14,8 @@ export function RoomCallSessionFooter({
   isCameraOn,
   handleMicToggle,
   handleCameraToggle,
+  isScreenSharing,
+  onScreenShareClick,
 }: RoomCallSessionFooterProps) {
   return (
     <footer className="rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3">
@@ -44,10 +48,15 @@ export function RoomCallSessionFooter({
 
         <button
           type="button"
-          aria-label="Share screen (coming soon)"
-          className="rounded-full bg-slate-800 px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-slate-700"
+          onClick={onScreenShareClick}
+          aria-label={isScreenSharing ? 'Stop sharing screen' : 'Share screen'}
+          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+            isScreenSharing
+              ? 'bg-amber-500/25 text-amber-200 hover:bg-amber-500/35'
+              : 'bg-slate-800 text-slate-100 hover:bg-slate-700'
+          }`}
         >
-          Share screen
+          {isScreenSharing ? 'Stop sharing' : 'Share screen'}
         </button>
 
         <button

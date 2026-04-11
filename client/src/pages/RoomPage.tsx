@@ -4,6 +4,7 @@ import { RoomCallSession } from '../components/room/RoomCallSession'
 import { RoomPreJoinLobby } from '../components/room/RoomPreJoinLobby'
 import { useSocket } from '../context/socket.context'
 import { useDraggableOverlay } from '../hooks/useDraggableOverlay'
+import { useScreenShare } from '../hooks/useScreenShare'
 import { useIceCandidateListener } from '../hooks/useIceCandidateListener'
 import { useJoinRoom } from '../hooks/useJoinRoom'
 import { useNegotiationNeeded } from '../hooks/useNegotiationNeeded'
@@ -26,6 +27,20 @@ export const RoomPage = () => {
   const initiateConnection = !showLobbyScreen
 
   const { offset: selfViewOffset, handlePointerDown: handleSelfViewPointerDown } = useDraggableOverlay()
+  const {
+    offset: screenShareOffset,
+    handlePointerDown: handleScreenSharePointerDown,
+  } = useDraggableOverlay()
+  const {
+    offset: remoteScreenShareOffset,
+    handlePointerDown: handleRemoteScreenSharePointerDown,
+  } = useDraggableOverlay()
+
+  const {
+    userScreenShareStream,
+    isScreenSharing,
+    toggleScreenShare,
+  } = useScreenShare()
 
   const [remoteSocketId, setRemoteSocketId] = useState<string | null>(null)
   const [remoteUser, setRemoteUser] = useState<{ userId: string; username: string; email: string } | null>(null)
@@ -70,7 +85,8 @@ export const RoomPage = () => {
   // listens for the local ICE candidates and sends them to the other person (remote socket id)
   useIceCandidateListener({ socket, roomId, remoteSocketId })
 
-  const { remoteStream, remoteAudioStream, remoteVideoStream } = useRemoteTrackListener({ remoteSocketId })
+  const { remoteStream, remoteAudioStream, remoteVideoStream, remoteScreenShareStream } =
+    useRemoteTrackListener({ remoteSocketId })
   const { messages, chatInput, setChatInput, handleChatSubmit } = useRoomChat(socket, roomId)
 
   const hasLiveRemoteVideo = Boolean(
@@ -103,6 +119,9 @@ export const RoomPage = () => {
           isRemoteCameraEnabled={isRemoteCameraEnabled}
           remoteAudioStream={remoteAudioStream}
           remoteVideoStream={remoteVideoStream}
+          remoteScreenShareStream={remoteScreenShareStream}
+          remoteScreenShareOffset={remoteScreenShareOffset}
+          handleRemoteScreenSharePointerDown={handleRemoteScreenSharePointerDown}
           remoteUser={remoteUser}
           remoteStream={remoteStream}
           remoteSocketId={remoteSocketId}
@@ -114,6 +133,11 @@ export const RoomPage = () => {
           handleCameraToggle={handleCameraToggle}
           selfViewOffset={selfViewOffset}
           handleSelfViewPointerDown={handleSelfViewPointerDown}
+          userScreenShareStream={userScreenShareStream}
+          screenShareOffset={screenShareOffset}
+          handleScreenSharePointerDown={handleScreenSharePointerDown}
+          isScreenSharing={isScreenSharing}
+          onScreenShareClick={toggleScreenShare}
           messages={messages}
           chatInput={chatInput}
           setChatInput={setChatInput}

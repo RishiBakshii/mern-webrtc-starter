@@ -16,6 +16,9 @@ export type RoomCallSessionProps = {
   isRemoteCameraEnabled: boolean
   remoteAudioStream: MediaStream | null
   remoteVideoStream: MediaStream | null
+  remoteScreenShareStream: MediaStream | null
+  remoteScreenShareOffset: Offset
+  handleRemoteScreenSharePointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void
   remoteUser: RemoteUser | null
   remoteStream: MediaStream | null
   remoteSocketId: string | null
@@ -27,6 +30,11 @@ export type RoomCallSessionProps = {
   handleCameraToggle: () => void
   selfViewOffset: Offset
   handleSelfViewPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void
+  userScreenShareStream: MediaStream | null
+  screenShareOffset: Offset
+  handleScreenSharePointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void
+  isScreenSharing: boolean
+  onScreenShareClick: () => void
   messages: RoomChatMessage[]
   chatInput: string
   setChatInput: (value: string) => void
@@ -39,6 +47,9 @@ export function RoomCallSession({
   isRemoteCameraEnabled,
   remoteAudioStream,
   remoteVideoStream,
+  remoteScreenShareStream,
+  remoteScreenShareOffset,
+  handleRemoteScreenSharePointerDown,
   remoteUser,
   remoteStream,
   remoteSocketId,
@@ -50,6 +61,11 @@ export function RoomCallSession({
   handleCameraToggle,
   selfViewOffset,
   handleSelfViewPointerDown,
+  userScreenShareStream,
+  screenShareOffset,
+  handleScreenSharePointerDown,
+  isScreenSharing,
+  onScreenShareClick,
   messages,
   chatInput,
   setChatInput,
@@ -65,6 +81,7 @@ export function RoomCallSession({
           isRemoteCameraEnabled={isRemoteCameraEnabled}
           remoteAudioStream={remoteAudioStream}
           remoteVideoStream={remoteVideoStream}
+          remoteScreenShareStream={remoteScreenShareStream}
         />
 
         <header className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3">
@@ -143,6 +160,26 @@ export function RoomCallSession({
             ) : null}
           </div>
 
+          {remoteScreenShareStream ? (
+            <div
+              className="absolute left-4 top-4 z-10 w-[min(100%,22rem)] max-w-[90vw] cursor-move overflow-hidden rounded-xl border border-cyan-500/40 bg-slate-950/95 shadow-lg shadow-black/40"
+              onPointerDown={handleRemoteScreenSharePointerDown}
+              style={{ transform: `translate(${remoteScreenShareOffset.x}px, ${remoteScreenShareOffset.y}px)` }}
+            >
+              <div className="pointer-events-none absolute left-2 top-2 z-10 rounded-md border border-cyan-500/30 bg-slate-950/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-cyan-200/90">
+                Their screen
+              </div>
+              <video
+                autoPlay
+                playsInline
+                className="aspect-video max-h-[40vh] w-full bg-black object-contain"
+                ref={(video) => {
+                  if (video) video.srcObject = remoteScreenShareStream
+                }}
+              />
+            </div>
+          ) : null}
+
           <div
             className="absolute bottom-4 right-4 h-28 w-44 cursor-move overflow-hidden rounded-xl border border-slate-700 bg-slate-950/90 shadow-lg shadow-black/30"
             onPointerDown={handleSelfViewPointerDown}
@@ -171,6 +208,28 @@ export function RoomCallSession({
               </span>
             </div>
           </div>
+
+          {userScreenShareStream ? (
+            <div
+              className="absolute bottom-4 left-4 z-10 w-[min(100%,22rem)] max-w-[90vw] cursor-move overflow-hidden rounded-xl border border-amber-500/40 bg-slate-950/95 shadow-lg shadow-black/40"
+              onPointerDown={handleScreenSharePointerDown}
+              style={{ transform: `translate(${screenShareOffset.x}px, ${screenShareOffset.y}px)` }}
+            >
+              <div className="pointer-events-none absolute left-2 top-2 z-10 rounded-md border border-amber-500/30 bg-slate-950/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200/90">
+                Your screen
+              </div>
+              <video
+                autoPlay
+                muted
+                playsInline
+                className="aspect-video max-h-[40vh] w-full bg-black object-contain"
+                ref={(video) => {
+                  if (video) video.srcObject = userScreenShareStream
+                }}
+              />
+            </div>
+          ) : null}
+
           <audio
             autoPlay
             ref={(audio) => {
@@ -184,6 +243,8 @@ export function RoomCallSession({
           isCameraOn={isCameraOn}
           handleMicToggle={handleMicToggle}
           handleCameraToggle={handleCameraToggle}
+          isScreenSharing={isScreenSharing}
+          onScreenShareClick={onScreenShareClick}
         />
       </section>
 
