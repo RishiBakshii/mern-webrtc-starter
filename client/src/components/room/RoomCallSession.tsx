@@ -19,6 +19,12 @@ export type RoomCallSessionProps = {
   remoteScreenShareStream: MediaStream | null
   remoteScreenShareOffset: Offset
   handleRemoteScreenSharePointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void
+  remoteScreenPipWidth: number
+  remoteScreenPipHeight: number
+  handleRemoteScreenPipResizePointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void
+  selfPipWidth: number
+  selfPipHeight: number
+  handleSelfPipResizePointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void
   remoteUser: RemoteUser | null
   remoteStream: MediaStream | null
   remoteSocketId: string | null
@@ -47,6 +53,12 @@ export function RoomCallSession({
   remoteScreenShareStream,
   remoteScreenShareOffset,
   handleRemoteScreenSharePointerDown,
+  remoteScreenPipWidth,
+  remoteScreenPipHeight,
+  handleRemoteScreenPipResizePointerDown,
+  selfPipWidth,
+  selfPipHeight,
+  handleSelfPipResizePointerDown,
   remoteUser,
   remoteStream,
   remoteSocketId,
@@ -156,9 +168,13 @@ export function RoomCallSession({
 
           {remoteScreenShareStream ? (
             <div
-              className="absolute left-4 top-4 z-10 w-[min(100%,22rem)] max-w-[90vw] cursor-move overflow-hidden rounded-xl border border-cyan-500/40 bg-slate-950/95 shadow-lg shadow-black/40"
+              className="absolute left-4 top-4 z-10 max-w-[min(100%,90vw)] cursor-move overflow-hidden rounded-xl border border-cyan-500/40 bg-slate-950/95 shadow-lg shadow-black/40"
               onPointerDown={handleRemoteScreenSharePointerDown}
-              style={{ transform: `translate(${remoteScreenShareOffset.x}px, ${remoteScreenShareOffset.y}px)` }}
+              style={{
+                width: remoteScreenPipWidth,
+                height: remoteScreenPipHeight,
+                transform: `translate(${remoteScreenShareOffset.x}px, ${remoteScreenShareOffset.y}px)`,
+              }}
             >
               <div className="pointer-events-none absolute left-2 top-2 z-10 rounded-md border border-cyan-500/30 bg-slate-950/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-cyan-200/90">
                 Their screen
@@ -166,19 +182,35 @@ export function RoomCallSession({
               <video
                 autoPlay
                 playsInline
-                className="aspect-video max-h-[40vh] w-full bg-black object-contain"
+                className="h-full w-full bg-black object-contain"
                 ref={(video) => {
                   if (video) video.srcObject = remoteScreenShareStream
                 }}
+              />
+              <div
+                className="absolute bottom-0 right-0 z-20 h-6 w-6 cursor-nwse-resize touch-none rounded-tl-md border-l border-t border-cyan-500/40 bg-slate-950/90"
+                onPointerDown={handleRemoteScreenPipResizePointerDown}
+                aria-label="Resize their screen preview"
+                role="separator"
               />
             </div>
           ) : null}
 
           <div
-            className="absolute bottom-4 right-4 h-28 w-44 cursor-move overflow-hidden rounded-xl border border-slate-700 bg-slate-950/90 shadow-lg shadow-black/30"
+            className="absolute bottom-4 right-4 max-w-[min(100%,90vw)] cursor-move overflow-hidden rounded-xl border border-slate-700 bg-slate-950/90 shadow-lg shadow-black/30"
             onPointerDown={handleSelfViewPointerDown}
-            style={{ transform: `translate(${selfViewOffset.x}px, ${selfViewOffset.y}px)` }}
+            style={{
+              width: selfPipWidth,
+              height: selfPipHeight,
+              transform: `translate(${selfViewOffset.x}px, ${selfViewOffset.y}px)`,
+            }}
           >
+            <div
+              className="absolute left-0 top-0 z-20 h-6 w-6 cursor-nesw-resize touch-none rounded-br-md border-b border-r border-slate-600/80 bg-slate-950/90"
+              onPointerDown={handleSelfPipResizePointerDown}
+              aria-label="Resize your camera preview"
+              role="separator"
+            />
             {isCameraOn && myStream ? (
               <video
                 autoPlay

@@ -4,6 +4,7 @@ import { RoomCallSession } from '../components/room/RoomCallSession'
 import { RoomPreJoinLobby } from '../components/room/RoomPreJoinLobby'
 import { useSocket } from '../context/socket.context'
 import { useDraggableOverlay } from '../hooks/useDraggableOverlay'
+import { useResizablePip } from '../hooks/useResizablePip'
 import { useScreenShare } from '../hooks/useScreenShare'
 import { useIceCandidateListener } from '../hooks/useIceCandidateListener'
 import { useJoinRoom } from '../hooks/useJoinRoom'
@@ -31,6 +32,30 @@ export const RoomPage = () => {
     offset: remoteScreenShareOffset,
     handlePointerDown: handleRemoteScreenSharePointerDown,
   } = useDraggableOverlay()
+
+  const {
+    widthPx: remoteScreenPipWidth,
+    heightPx: remoteScreenPipHeight,
+    handleResizePointerDown: handleRemoteScreenPipResizePointerDown,
+  } = useResizablePip({
+    aspectRatio: 16 / 9,
+    minWidth: 200,
+    maxWidth: 1600,
+    initialWidth: 352,
+    corner: 'se',
+  })
+
+  const {
+    widthPx: selfPipWidth,
+    heightPx: selfPipHeight,
+    handleResizePointerDown: handleSelfPipResizePointerDown,
+  } = useResizablePip({
+    aspectRatio: 16 / 9,
+    minWidth: 120,
+    maxWidth: 1600,
+    initialWidth: 200,
+    corner: 'nw',
+  })
 
   const { isScreenSharing, toggleScreenShare } = useScreenShare()
 
@@ -114,6 +139,12 @@ export const RoomPage = () => {
           remoteScreenShareStream={remoteScreenShareStream}
           remoteScreenShareOffset={remoteScreenShareOffset}
           handleRemoteScreenSharePointerDown={handleRemoteScreenSharePointerDown}
+          remoteScreenPipWidth={remoteScreenPipWidth}
+          remoteScreenPipHeight={remoteScreenPipHeight}
+          handleRemoteScreenPipResizePointerDown={handleRemoteScreenPipResizePointerDown}
+          selfPipWidth={selfPipWidth}
+          selfPipHeight={selfPipHeight}
+          handleSelfPipResizePointerDown={handleSelfPipResizePointerDown}
           remoteUser={remoteUser}
           remoteStream={remoteStream}
           remoteSocketId={remoteSocketId}
