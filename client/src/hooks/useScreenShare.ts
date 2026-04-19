@@ -1,10 +1,18 @@
 import { useCallback, useState } from 'react'
+import { useSocket } from '../context/socket.context'
+import { SOCKET_EVENTS } from '../socket/events'
 import { peer } from '../lib/webrtc/peer'
+
+type UseScreenShareOptions = {
+  roomId?: string
+  toSocketId?: string | null
+}
 
 /**
  * Display capture for screen sharing: local preview + adds a video track to the peer connection.
  */
-export const useScreenShare = () => {
+export const useScreenShare = ({ roomId, toSocketId }: UseScreenShareOptions = {}) => {
+  const { socket } = useSocket()
   const [userScreenShareStream, setUserScreenShareStream] = useState<MediaStream | null>(null)
 
   const stopScreenShare = useCallback(() => {
@@ -16,7 +24,10 @@ export const useScreenShare = () => {
       return null
     })
     peer.removeScreenShareTrack()
-  }, [])
+    if (roomId && toSocketId) {
+      socket?.emit(SOCKET_EVENTS.SCREEN_SHARE_STOP, { roomId, toSocketId })
+    }
+  }, [socket, roomId, toSocketId])
 
   const startScreenShare = useCallback(async () => {
     try {

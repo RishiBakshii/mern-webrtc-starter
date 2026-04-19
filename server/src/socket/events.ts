@@ -12,4 +12,5 @@ export enum SOCKET_EVENTS {
   SEND_MESSAGE = 'send_message',
   RECEIVE_MESSAGE = 'receive_message',
   ROOM_ERROR = 'room-error',
+  SCREEN_SHARE_STOP = 'screen_share_stop',
 }

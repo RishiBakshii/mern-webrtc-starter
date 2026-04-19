@@ -31,6 +31,8 @@ type UseRemoteTrackListenerResult = {
   remoteAudioStream: MediaStream | null
   remoteVideoStream: MediaStream | null
   remoteScreenShareStream: MediaStream | null
+  /** Clears remote screen share preview (e.g. when peer signals stop via socket). */
+  clearRemoteScreenShare: () => void
 }
 
 export const useRemoteTrackListener = ({
@@ -108,6 +110,10 @@ export const useRemoteTrackListener = ({
     }
   }, [])
 
+  const clearRemoteScreenShare = useCallback(() => {
+    setRemoteScreenShareStream(null)
+  }, [])
+
   useEffect(() => {
     peer.peer?.addEventListener('track', handleRemoteStream)
     return () => {
@@ -115,5 +121,11 @@ export const useRemoteTrackListener = ({
     }
   }, [handleRemoteStream, remoteSocketId])
 
-  return { remoteStream, remoteAudioStream, remoteVideoStream, remoteScreenShareStream }
+  return {
+    remoteStream,
+    remoteAudioStream,
+    remoteVideoStream,
+    remoteScreenShareStream,
+    clearRemoteScreenShare,
+  }
 }

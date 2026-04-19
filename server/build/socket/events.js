@@ -16,4 +16,5 @@ var SOCKET_EVENTS;
     SOCKET_EVENTS["SEND_MESSAGE"] = "send_message";
     SOCKET_EVENTS["RECEIVE_MESSAGE"] = "receive_message";
     SOCKET_EVENTS["ROOM_ERROR"] = "room-error";
+    SOCKET_EVENTS["SCREEN_SHARE_STOP"] = "screen_share_stop";
 })(SOCKET_EVENTS || (exports.SOCKET_EVENTS = SOCKET_EVENTS = {}));

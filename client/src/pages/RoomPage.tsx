@@ -14,6 +14,7 @@ import { useNegotiationRemoteAnswer } from '../hooks/useNegotiationRemoteAnswer'
 import { useLocalMediaStream } from '../hooks/useLocalMediaStream'
 import { useOtherPersonJoined } from '../hooks/useOtherPersonJoined'
 import { useRemoteTrackListener } from '../hooks/useRemoteTrackListener'
+import { useScreenShareStopListener } from '../hooks/useScreenShareStopListener'
 import { useRoomChat } from '../hooks/useRoomChat'
 import { useRoomJoinedConfirmation } from '../hooks/useRoomJoinedConfirmation'
 import { useUserPreferences } from '../hooks/useUserPreferences'
@@ -29,9 +30,12 @@ export const RoomPage = () => {
   const [showLeaveModal, setShowLeaveModal] = useState(false)
   const initiateConnection = !showLobbyScreen
 
-  const { isScreenSharing, toggleScreenShare, stopScreenShare } = useScreenShare()
-
   const [remoteSocketId, setRemoteSocketId] = useState<string | null>(null)
+
+  const { isScreenSharing, toggleScreenShare, stopScreenShare } = useScreenShare({
+    roomId,
+    toSocketId: remoteSocketId,
+  })
   const [remoteUser, setRemoteUser] = useState<{ userId: string; username: string; email: string } | null>(null)
 
   // local media stream
@@ -74,8 +78,21 @@ export const RoomPage = () => {
   // listens for the local ICE candidates and sends them to the other person (remote socket id)
   useIceCandidateListener({ socket, roomId, remoteSocketId })
 
-  const { remoteStream, remoteAudioStream, remoteVideoStream, remoteScreenShareStream } =
-    useRemoteTrackListener({ remoteSocketId })
+  const {
+    remoteStream,
+    remoteAudioStream,
+    remoteVideoStream,
+    remoteScreenShareStream,
+    clearRemoteScreenShare,
+  } = useRemoteTrackListener({ remoteSocketId })
+
+  useScreenShareStopListener({
+    socket,
+    roomId,
+    remoteSocketId,
+    onRemoteScreenShareStopped: clearRemoteScreenShare,
+  })
+
   const { messages, chatInput, setChatInput, handleChatSubmit } = useRoomChat(socket, roomId)
 
   const hasLiveRemoteVideo = Boolean(

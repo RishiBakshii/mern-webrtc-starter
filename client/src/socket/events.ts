@@ -14,6 +14,7 @@ export const SOCKET_EVENTS = {
   SEND_MESSAGE: 'send_message',
   RECEIVE_MESSAGE: 'receive_message',
   ROOM_ERROR: 'room-error',
+  SCREEN_SHARE_STOP: 'screen_share_stop',
 } as const
 
 export type SocketEvent = (typeof SOCKET_EVENTS)[keyof typeof SOCKET_EVENTS]

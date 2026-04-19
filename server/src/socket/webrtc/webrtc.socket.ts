@@ -52,6 +52,21 @@ interface OutgoingWebRtcIceCandidatePayload {
   candidate: unknown
 }
 
+interface ScreenShareStopPayload {
+  roomId?: string
+  toSocketId?: string
+}
+
+interface OutgoingScreenShareStopPayload {
+  roomId: string
+  fromSocketId: string
+  fromUser: {
+    userId: string
+    username: string
+    email: string
+  }
+}
+
 export const registerWebRtcSocketHandlers = (socket: Socket) => {
     
   socket.on(SOCKET_EVENTS.WEBRTC_OFFER, ({ roomId, toSocketId, offer }: WebRtcOfferPayload = {}) => {
@@ -192,5 +207,30 @@ export const registerWebRtcSocketHandlers = (socket: Socket) => {
       socket.to(toSocketId).emit(SOCKET_EVENTS.WEBRTC_ICE_CANDIDATE, payload)
     },
   )
+
+  socket.on(SOCKET_EVENTS.SCREEN_SHARE_STOP, ({ roomId, toSocketId }: ScreenShareStopPayload = {}) => {
+    if (!roomId || !toSocketId) {
+      socket.emit(SOCKET_EVENTS.ROOM_ERROR, {
+        message: 'roomId and toSocketId are required',
+      })
+      return
+    }
+
+    const payload: OutgoingScreenShareStopPayload = {
+      roomId,
+      fromSocketId: socket.id,
+      fromUser: {
+        userId: socket.user.userId,
+        username: socket.user.username,
+        email: socket.user.email,
+      },
+    }
+
+    console.log(
+      `${socket.user.username} sent SCREEN_SHARE_STOP to socket ${toSocketId} for room ${roomId}`,
+    )
+
+    socket.to(toSocketId).emit(SOCKET_EVENTS.SCREEN_SHARE_STOP, payload)
+  })
 }
 

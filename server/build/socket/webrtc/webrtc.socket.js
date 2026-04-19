@@ -103,5 +103,24 @@ const registerWebRtcSocketHandlers = (socket) => {
         console.log(`${socket.user.username} sent WEBRTC_ICE_CANDIDATE to socket ${toSocketId} for room ${roomId}`);
         socket.to(toSocketId).emit(events_1.SOCKET_EVENTS.WEBRTC_ICE_CANDIDATE, payload);
     });
+    socket.on(events_1.SOCKET_EVENTS.SCREEN_SHARE_STOP, ({ roomId, toSocketId } = {}) => {
+        if (!roomId || !toSocketId) {
+            socket.emit(events_1.SOCKET_EVENTS.ROOM_ERROR, {
+                message: 'roomId and toSocketId are required',
+            });
+            return;
+        }
+        const payload = {
+            roomId,
+            fromSocketId: socket.id,
+            fromUser: {
+                userId: socket.user.userId,
+                username: socket.user.username,
+                email: socket.user.email,
+            },
+        };
+        console.log(`${socket.user.username} sent SCREEN_SHARE_STOP to socket ${toSocketId} for room ${roomId}`);
+        socket.to(toSocketId).emit(events_1.SOCKET_EVENTS.SCREEN_SHARE_STOP, payload);
+    });
 };
 exports.registerWebRtcSocketHandlers = registerWebRtcSocketHandlers;
