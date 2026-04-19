@@ -1,10 +1,10 @@
-import { type FormEvent, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/auth.context'
-import { CameraIcon, MicIcon } from './CallControlIcons'
-import { RoomCallSessionDebugPanel } from './RoomCallSessionDebugPanel'
-import { RoomCallSessionFooter } from './RoomCallSessionFooter'
 import type { RoomChatMessage } from '../../hooks/useRoomChat'
+import { ChatSidebarContent } from './ChatSidebarContent'
+import { CameraIcon, MicIcon } from './CallControlIcons'
+import { RoomCallSessionFooter } from './RoomCallSessionFooter'
 
 type Offset = { x: number; y: number }
 
@@ -47,8 +47,8 @@ export type RoomCallSessionProps = {
 
 export function RoomCallSession({
   roomId,
-  isRemoteMicEnabled,
-  isRemoteCameraEnabled,
+  isRemoteMicEnabled: _isRemoteMicEnabled,
+  isRemoteCameraEnabled: _isRemoteCameraEnabled,
   remoteAudioStream,
   remoteVideoStream,
   remoteScreenShareStream,
@@ -80,29 +80,64 @@ export function RoomCallSession({
   handleChatSubmit,
 }: RoomCallSessionProps) {
   const { user } = useAuth()
+  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false)
+
+  useEffect(() => {
+    if (!isMobileChatOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isMobileChatOpen])
+
+  useEffect(() => {
+    if (!isMobileChatOpen) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMobileChatOpen(false)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [isMobileChatOpen])
 
   return (
     <div className="flex h-[calc(100vh-2rem)] w-full gap-4">
       <section className="flex min-w-0 flex-1 flex-col gap-4">
-        <RoomCallSessionDebugPanel
+        {/* <RoomCallSessionDebugPanel
           isRemoteMicEnabled={isRemoteMicEnabled}
           isRemoteCameraEnabled={isRemoteCameraEnabled}
           remoteAudioStream={remoteAudioStream}
           remoteVideoStream={remoteVideoStream}
           remoteScreenShareStream={remoteScreenShareStream}
-        />
+        /> */}
 
-        <header className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3">
+        <header className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3">
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-indigo-400">Room</p>
             <h1 className="text-lg font-semibold">{roomId}</h1>
           </div>
-          <Link
-            to="/"
-            className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-slate-800"
-          >
-            Back to dashboard
-          </Link>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setIsMobileChatOpen(true)}
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/80 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-slate-800 lg:hidden"
+              aria-expanded={isMobileChatOpen}
+              aria-controls="mobile-chat-drawer"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              Chat
+            </button>
+            <Link
+              to="/"
+              className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-slate-800"
+            >
+              Back to dashboard
+            </Link>
+          </div>
         </header>
 
         <div className="relative flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
@@ -256,51 +291,47 @@ export function RoomCallSession({
         />
       </section>
 
-      <aside className="hidden w-[330px] shrink-0 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 lg:flex lg:flex-col">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-100">In-call chat</h2>
-          <span className="text-xs text-slate-400">0 online</span>
-        </div>
+      <aside className="hidden w-[330px] shrink-0 flex-col rounded-2xl border border-slate-800 bg-slate-900/70 p-4 lg:flex">
+        <ChatSidebarContent
+          messages={messages}
+          chatInput={chatInput}
+          setChatInput={setChatInput}
+          handleChatSubmit={handleChatSubmit}
+          userId={user?.id}
+          variant="docked"
+        />
+      </aside>
 
-        <div className="mb-3 min-h-0 flex-1 overflow-y-auto rounded-lg border border-slate-800 bg-slate-950 p-3">
-          {messages.length === 0 ? (
-            <p className="text-xs text-slate-500">No messages yet.</p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {messages.map((entry) => {
-                const isOwnMessage = Boolean(user?.id && entry.senderUserId === user.id)
-                return (
-                  <li
-                    key={`${entry.sentAt}-${entry.senderUserId}-${entry.message.slice(0, 20)}`}
-                    className="text-xs"
-                  >
-                    <span className="font-medium text-indigo-300">
-                      {isOwnMessage ? 'You' : entry.sender.username}
-                    </span>
-                    <span className="text-slate-500"> · </span>
-                    <span className="text-slate-200">{entry.message}</span>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </div>
+      <div
+        className={`fixed inset-0 z-40 transition-opacity duration-300 ease-out lg:hidden ${
+          isMobileChatOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+        aria-hidden={!isMobileChatOpen}
+      >
+        <button
+          type="button"
+          className="absolute inset-0 bg-black/60"
+          aria-label="Close chat"
+          onClick={() => setIsMobileChatOpen(false)}
+        />
+      </div>
 
-        <form onSubmit={handleChatSubmit} className="flex gap-2">
-          <input
-            type="text"
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            placeholder="Type a message..."
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-          />
-          <button
-            type="submit"
-            className="rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-400"
-          >
-            Send
-          </button>
-        </form>
+      <aside
+        id="mobile-chat-drawer"
+        className={`fixed inset-y-0 right-0 z-50 flex min-h-0 w-[min(100vw,22rem)] max-w-full flex-col border-l border-slate-800 bg-slate-900 p-4 shadow-2xl shadow-black/50 transition-transform duration-300 ease-out lg:hidden ${
+          isMobileChatOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+        aria-hidden={!isMobileChatOpen}
+      >
+        <ChatSidebarContent
+          messages={messages}
+          chatInput={chatInput}
+          setChatInput={setChatInput}
+          handleChatSubmit={handleChatSubmit}
+          userId={user?.id}
+          variant="drawer"
+          onClose={() => setIsMobileChatOpen(false)}
+        />
       </aside>
     </div>
   )
